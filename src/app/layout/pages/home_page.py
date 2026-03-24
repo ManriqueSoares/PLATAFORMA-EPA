@@ -25,7 +25,14 @@ from app.layout.components.widgets import (
     NOME_CONTAINER,
     NOME_USUARIO,
     TEXT_AREA,
-    BOTAO_OPEN_SIDBAR
+    BOTAO_OPEN_SIDBAR,
+    TITULO_JANELA_SELECAO_DATA,
+    BOTAO_CLOSE_JANELA_SELECAO_DATA,
+    ENTRADA_DATA_INICIO_FILTRO,
+    ENTRADA_DATA_FIM_FILTRO,
+    BOTAO_SELECAO_DATA_INICIO_FILTRO,
+    BOTAO_SELECAO_DATA_FIM_FILTRO,
+    BOTAO_FILTRAR_DATA_CONFIRMAR
 )
 
 class HOME(ft.Container):
@@ -46,7 +53,7 @@ class HOME(ft.Container):
         BOTAO_OPEN_SIDBAR.on_click = self.open_sidbar
         BOTAO_ATIVIDADES.icon_button.on_click = lambda e: self.altera_janela(e, nome_page="Atividades", interface=self.container_atividades())
         BOTAO_GERAL.icon_button.on_click = lambda e: self.altera_janela(e, nome_page="Home", interface=self.container_geral())
-        #BOTAO_FILTRAR_DATA.on_click = lambda e: self.page.show_dialog(self.date_picker_range)
+        BOTAO_FILTRAR_DATA.on_click = self.open_janela_selecao_data
         #------------------------------------------ Containers para cada página --------------------------------
 
         # ----------------------------------------- Definindo interface -----------------------------------------
@@ -350,11 +357,28 @@ class HOME(ft.Container):
         self.page.update()
 
 
-    # def select_data(self, e:ft.Event[ft.DateRangePicker]):
-    #     app_status.data_inicio_filtro = self.date_picker_range.start_value.strftime("%d/%m/%Y")
-    #     app_status.data_final_filtro = self.date_picker_range.end_value.strftime("%d/%m/%Y")
-    #     print(f"Data início: {app_status.data_inicio_filtro}")
-    #     print(f"Data final: {app_status.data_final_filtro}")
+    def open_janela_selecao_data(self, e):
+        if app_status.janela_selecao_data == False:
+            self.janela_selecao_data = JANELA_SELECAO_DATA(page=self.page)
+            raiz.controls.append(
+                ft.Column(
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    controls=[
+                        ft.Row(
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                            controls=[
+                                self.janela_selecao_data
+                            ]
+                        )
+                    ]
+                )
+            )
+            app_status.janela_selecao_data = True
+            self.page.update()
+        else:
+            pass
 
 
     def build(self):
@@ -369,3 +393,61 @@ class HOME(ft.Container):
             ]
         )
     
+
+
+class JANELA_SELECAO_DATA(ft.Container):
+    def __init__(self, page: ft.Page):
+        super().__init__()
+        self.page = page
+        self.width = 400
+        self.height = 200
+        self.border_radius = 5
+        self.bgcolor = ft.Colors.GREY_900
+        self.content = ft.Column(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+                ft.Container(
+                    width=True,
+                    padding=ft.padding.only(left=20, right=20),
+                    height=40,
+                    content=ft.Row(
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=[
+                            ft.Container(width=5),
+                            TITULO_JANELA_SELECAO_DATA,
+                            BOTAO_CLOSE_JANELA_SELECAO_DATA
+                        ]
+                    )
+                ),
+                ft.Container(
+                    expand=True,
+                    padding=ft.padding.only(left=20, right=20), 
+                    content=ft.Row(
+                        alignment=ft.MainAxisAlignment.SPACE_AROUND,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=[
+                            ENTRADA_DATA_INICIO_FILTRO,
+                            BOTAO_SELECAO_DATA_INICIO_FILTRO,
+                            ft.VerticalDivider(width=10, color=ft.Colors.TRANSPARENT),
+                            ENTRADA_DATA_FIM_FILTRO,
+                            BOTAO_SELECAO_DATA_FIM_FILTRO
+                        ]
+                    )
+                ),
+                ft.Container(
+                    width=True,
+                    height=40,
+                    padding=ft.padding.only(left=20, right=20),
+                    alignment=ft.alignment.center,
+                    content=ft.Row(
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=[
+                            BOTAO_FILTRAR_DATA_CONFIRMAR
+                        ]
+                    )
+                )
+            ]
+        )
