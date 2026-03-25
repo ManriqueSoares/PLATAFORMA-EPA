@@ -46,14 +46,14 @@ BOTAO_NOTAS = Button_SidBar(icone=ft.Icons.NOTE, texto="Notas")
 
 NOME_CONTAINER = ft.Text(value="Geral", size=22, weight=ft.FontWeight.W_700, color=ft.Colors.BLUE_800)
 
-ENTRADA_CP_FILTRO_GERAL = ft.TextField(label="CP", width=200, border_radius=15, border_color=ft.Colors.with_opacity(0.80, ft.Colors.BLUE_900), focus_color=ft.Colors.with_opacity(0.80, ft.Colors.BLUE_700))
+ENTRADA_CP_FILTRO_GERAL = ft.TextField(label="CP", width=150, border_radius=15, border_color=ft.Colors.with_opacity(0.80, ft.Colors.BLUE_900), focus_color=ft.Colors.with_opacity(0.80, ft.Colors.BLUE_700))
 ENTRADA_CLIENTE_FILTRO_GERAL = ft.Dropdown(label="Cliente", width=200, border_radius=15, border_color=ft.Colors.with_opacity(0.80, ft.Colors.BLUE_900), input_filter=True, enable_filter=True, options=[])
 
 BOTAO_FILTRAR_DATA = ft.FloatingActionButton(icon=ft.Icons.DATE_RANGE, scale=0.8)
 
 BOTAO_LIMPAR_FILTROS = ft.IconButton(icon=ft.Icons.DELETE_FOREVER, icon_color=ft.Colors.RED_400)
 
-ENTRADA_RESPONSAVEL_FILTRO_GERAL = ft.Dropdown(label="Resp", width=200, border_radius=15, border_color=ft.Colors.with_opacity(0.80, ft.Colors.BLUE_900), input_filter=True, enable_filter=True, options=[])
+ENTRADA_RESPONSAVEL_FILTRO_GERAL = ft.Dropdown(label="Resp", width=150, border_radius=15, border_color=ft.Colors.with_opacity(0.80, ft.Colors.BLUE_900), input_filter=True, enable_filter=True, options=[])
 
 DATATABLE_ATIVIDADES_EM_ABERTO = DATATABLE_STATUS_ATIVIDADE(status="aberto")
 DATATABLE_ATIVIDADES_EM_ANDAMENTO = DATATABLE_STATUS_ATIVIDADE(status="andamento")
