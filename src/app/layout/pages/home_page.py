@@ -6,6 +6,7 @@ today = datetime.today()
 from app.layout.raiz import raiz
 from app.config.status import app_status
 from app.layout.components.widgets import *
+from app.services.loading_datatable import apply_filters_primeiro_envio
 
 class HOME(ft.Container):
     def __init__(self, page: ft.Page):
@@ -24,6 +25,11 @@ class HOME(ft.Container):
         BOTAO_FILTRAR_DATA.on_click = self.open_janela_selecao_data
         BOTAO_SELECAO_DATA_INICIO_FILTRO.on_click = lambda e: self.page.open(ft.DatePicker(first_date=datetime(2026, 1, 1), last_date=datetime(2099, 12, 31), date_picker_entry_mode=ft.DatePickerEntryMode.CALENDAR, on_change=self.filtrar_data_inicio))
         BOTAO_SELECAO_DATA_FIM_FILTRO.on_click = lambda e: self.page.open(ft.DatePicker(first_date=datetime(2026, 1, 1), last_date=datetime(2099, 12, 31), date_picker_entry_mode=ft.DatePickerEntryMode.CALENDAR, on_change=self.filtrar_data_fim))
+        BOTAO_FILTRAR_DATA_CONFIRMAR_.on_click = self.aplicar_filtros_geral
+        BOTAO_LIMPAR_FILTROS.on_click = self.limpar_filtros_geral
+        ENTRADA_CP_FILTRO_GERAL.on_change = self.aplicar_filtros_geral
+        ENTRADA_CLIENTE_FILTRO_GERAL.on_change = self.aplicar_filtros_geral
+        ENTRADA_RESPONSAVEL_FILTRO_GERAL.on_change = self.aplicar_filtros_geral
         #------------------------------------------ Containers para cada página --------------------------------
 
         # ----------------------------------------- Definindo interface -----------------------------------------
@@ -169,15 +175,15 @@ class HOME(ft.Container):
                     ft.Container(
                         expand=True,
                         padding=10,
-                        content=ft.Column(
+                        content=ft.Row(
                             scroll="auto",
-                            alignment=ft.MainAxisAlignment.START,
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,  
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            vertical_alignment=ft.CrossAxisAlignment.START,
                             controls=[
-                                ft.Row(
+                                ft.Column(
                                     scroll="auto",
-                                    alignment=ft.MainAxisAlignment.CENTER,
-                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                    alignment=ft.MainAxisAlignment.START,
+                                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                                     controls=[
                                         DATATABLE_GERAL
                                     ]
@@ -359,6 +365,35 @@ class HOME(ft.Container):
     def filtrar_data_fim(self, e):
         ENTRADA_DATA_FIM_FILTRO.value = e.control.value.strftime("%d/%m/%Y")
         self.page.update()
+
+    def aplicar_filtros_geral(self, e=None):
+        apply_filters_primeiro_envio(
+            cp_value=ENTRADA_CP_FILTRO_GERAL.value,
+            cliente_value=ENTRADA_CLIENTE_FILTRO_GERAL.value,
+            responsavel_value=ENTRADA_RESPONSAVEL_FILTRO_GERAL.value,
+            data_inicio_value=ENTRADA_DATA_INICIO_FILTRO.value,
+            data_fim_value=ENTRADA_DATA_FIM_FILTRO.value,
+        )
+
+    def limpar_filtros_geral(self, e):
+        ENTRADA_CP_FILTRO_GERAL.value = ""
+        ENTRADA_CLIENTE_FILTRO_GERAL.value = None
+        ENTRADA_RESPONSAVEL_FILTRO_GERAL.value = None
+        ENTRADA_DATA_INICIO_FILTRO.value = ""
+        ENTRADA_DATA_FIM_FILTRO.value = ""
+        self.aplicar_filtros_geral()
+
+        for control in [
+            ENTRADA_CP_FILTRO_GERAL,
+            ENTRADA_CLIENTE_FILTRO_GERAL,
+            ENTRADA_RESPONSAVEL_FILTRO_GERAL,
+            ENTRADA_DATA_INICIO_FILTRO,
+            ENTRADA_DATA_FIM_FILTRO,
+        ]:
+            if control.page is not None:
+                control.update()
+
+    
 
     def build(self):
         return ft.Row(

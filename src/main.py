@@ -2,7 +2,7 @@ import flet as ft
 
 from app.layout.raiz import raiz
 from app.layout.pages.home_page import HOME
-
+from app.services.loading_datatable import run_datatable_primeiro_envio
 def main(page: ft.Page):
 
     home = HOME(page)
@@ -21,6 +21,7 @@ def main(page: ft.Page):
             content=raiz
         )
     )
+    run_datatable_primeiro_envio()
     page.update()
 
 if __name__ == "__main__":
