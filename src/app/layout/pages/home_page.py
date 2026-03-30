@@ -1,7 +1,7 @@
 import flet as ft
-import datetime
+from datetime import datetime
 
-today = datetime.date.today()
+today = datetime.today()
 
 from app.layout.raiz import raiz
 from app.config.status import app_status
@@ -14,11 +14,7 @@ class HOME(ft.Container):
         self.padding = 0
         self.expand = True
         
-        # self.date_picker_range = ft.DateRangePicker(
-        #     start_value=datetime.datetime(year=today.year, month=today.month, day=today.day),
-        #     end_value=datetime.datetime(year=today.year, month=today.month, day=today.day),
-        #     on_change=self.select_data
-        # )
+
         
         
         # ----------------------------------------- Função botões -----------------------------------------------
@@ -26,6 +22,8 @@ class HOME(ft.Container):
         BOTAO_ATIVIDADES.icon_button.on_click = lambda e: self.altera_janela(e, nome_page="Atividades", interface=self.container_atividades())
         BOTAO_GERAL.icon_button.on_click = lambda e: self.altera_janela(e, nome_page="Home", interface=self.container_geral())
         BOTAO_FILTRAR_DATA.on_click = self.open_janela_selecao_data
+        BOTAO_SELECAO_DATA_INICIO_FILTRO.on_click = lambda e: self.page.open(ft.DatePicker(first_date=datetime(2026, 1, 1), last_date=datetime(2099, 12, 31), date_picker_entry_mode=ft.DatePickerEntryMode.CALENDAR, on_change=self.filtrar_data_inicio))
+        BOTAO_SELECAO_DATA_FIM_FILTRO.on_click = lambda e: self.page.open(ft.DatePicker(first_date=datetime(2026, 1, 1), last_date=datetime(2099, 12, 31), date_picker_entry_mode=ft.DatePickerEntryMode.CALENDAR, on_change=self.filtrar_data_fim))
         #------------------------------------------ Containers para cada página --------------------------------
 
         # ----------------------------------------- Definindo interface -----------------------------------------
@@ -311,6 +309,7 @@ class HOME(ft.Container):
             BOTAO_ATIVIDADES.texto_button.visible = True
             BOTAO_INFORMACOES.texto_button.visible = True
             BOTAO_NOTAS.texto_button.visible = True
+            
         
         self.sidbar.update()
 
@@ -352,6 +351,14 @@ class HOME(ft.Container):
         else:
             pass
 
+
+    def filtrar_data_inicio(self, e):
+        ENTRADA_DATA_INICIO_FILTRO.value = e.control.value.strftime("%d/%m/%Y")
+        self.page.update()
+    
+    def filtrar_data_fim(self, e):
+        ENTRADA_DATA_FIM_FILTRO.value = e.control.value.strftime("%d/%m/%Y")
+        self.page.update()
 
     def build(self):
         return ft.Row(
