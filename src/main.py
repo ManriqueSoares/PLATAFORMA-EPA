@@ -1,7 +1,7 @@
 import flet as ft
 
 from app.layout.raiz import raiz
-from app.layout.pages.home_page import HOME
+from app.layout.pages.home_page import HOME, JANELA_NOTAS
 from app.services.loading_datatable import run_datatable_primeiro_envio
 def main(page: ft.Page):
 

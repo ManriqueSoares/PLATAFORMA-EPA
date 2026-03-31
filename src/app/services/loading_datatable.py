@@ -1,6 +1,7 @@
 import flet as ft
 import pandas as pd
 import datetime
+from pathlib import Path
 
 from app.config.config import configuracoes
 from app.services.database.loading_data import run_primeiro_envio
@@ -11,8 +12,116 @@ from app.layout.components.widgets import (
     RESPONSAVEL_FILTRO_OPCOES,
 )
 
+from app.layout.raiz import raiz
+
 
 RESPONSAVEL_COLUMNS = ["RESP_CALCULO", "RESP_EBPA", "RESP_EBPM", "RESP_APROVACAO"]
+NOTAS_CSV_PATH = Path(__file__).resolve().parents[2] / "storage" / "data" / "notas.csv"
+
+
+def _normalize_cp_to_int(value):
+    if pd.isna(value):
+        return None
+
+    value_text = str(value).strip()
+    if not value_text:
+        return None
+
+    try:
+        return int(float(value_text))
+    except (TypeError, ValueError):
+        return None
+
+
+def _buscar_linhas_notas_por_cp(cp):
+    cp_normalizado = _normalize_cp_to_int(cp)
+
+    if cp_normalizado is None or not NOTAS_CSV_PATH.exists():
+        return pd.DataFrame()
+
+    try:
+        notas_df = pd.read_csv(NOTAS_CSV_PATH, sep=";", dtype=str)
+    except pd.errors.ParserError:
+        notas_df = pd.read_csv(
+            NOTAS_CSV_PATH,
+            sep=";",
+            dtype=str,
+            engine="python",
+            on_bad_lines="skip",
+        )
+
+    if "CP" not in notas_df.columns:
+        return pd.DataFrame()
+
+    notas_df["CP"] = (
+        notas_df["CP"]
+        .astype("string")
+        .str.strip()
+        .apply(_normalize_cp_to_int)
+        .astype("Int64")
+    )
+
+    print(f"CP BUSCADA: {cp_normalizado}")
+    print(f"Colunas CP no CSV: {notas_df['CP'].dropna().astype(int).tolist()}")
+
+    df_filtrado = notas_df.loc[notas_df["CP"] == cp_normalizado].copy()
+    df_filtrado["LINHA_ARQUIVO"] = df_filtrado.index + 2
+
+    print(f"Linhas encontradas no CSV: {df_filtrado['LINHA_ARQUIVO'].tolist()}")
+    return df_filtrado
+
+def func_open_janela_notas(e, cp):
+    from app.layout.pages.home_page import JANELA_NOTAS
+    from app.layout.components.widgets import TITULO_JANELA_NOTAS, TAB_NOTAS
+
+    cp_normalizado = _normalize_cp_to_int(cp)
+    df_cp_encontradas = _buscar_linhas_notas_por_cp(cp)
+    linhas_arquivo = df_cp_encontradas["LINHA_ARQUIVO"].astype(int).tolist() if not df_cp_encontradas.empty else []
+    linhas_formatadas = ",".join(str(linha) for linha in linhas_arquivo)
+    TITULO_JANELA_NOTAS.value = f"Notas CP: {cp}"
+    TAB_NOTAS.tabs.clear()
+    num_tab = 0
+    for i in range(df_cp_encontradas.shape[0]):
+        TAB_NOTAS.selected_index = 0
+        TAB_NOTAS.tabs.append(
+            ft.Tab(
+                text=f"Nota {i+1}",
+                content=ft.Container(
+                    expand=True,
+                    border_radius=10,
+                    border=ft.border.all(1, ft.Colors.with_opacity(0.80, ft.Colors.BLUE_900)),
+                    content=ft.TextField(
+                        value=df_cp_encontradas.iloc[i]["NOTA"],
+                        expand=True,
+                        multiline=True,
+                        read_only=True,
+                        border_color="transparent",
+                        content_padding=ft.padding.all(10),
+                    )
+                )
+            )
+        )
+        num_tab += 1
+
+    
+
+    raiz.controls.append(
+        ft.Column(
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    controls=[
+                        JANELA_NOTAS()
+                    ]
+                )
+            ]
+        )
+    )
+    raiz.update()
+    return df_cp_encontradas
 
 
 def _parse_filter_date(value):
@@ -73,12 +182,7 @@ def _build_rows(df):
                     ft.DataCell(ft.Text(_normalize_text(row["RESP_APROVACAO"]))),
                     ft.DataCell(ft.Text(_format_data_final(row["DATA_PS"]))),
                     ft.DataCell(
-                        ft.PopupMenuButton(
-                            items=[
-                                ft.PopupMenuItem(text="Add Nota", icon=ft.Icons.NOTIFICATION_ADD),
-                                ft.PopupMenuItem(text="Visualizar Notas", icon=ft.Icons.REMOVE_RED_EYE),
-                            ]
-                        )
+                        ft.IconButton(icon=ft.Icons.EDIT, icon_color=ft.Colors.BLUE_300, on_click=lambda e, cp=row["CP"]: func_open_janela_notas(e, cp))
                     ),
                 ]
             )

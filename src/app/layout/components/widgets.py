@@ -9,6 +9,15 @@ def on_hover_close_filter_data_button(e):
         BOTAO_CLOSE_JANELA_SELECAO_DATA_.bgcolor = ft.Colors.RED_500
         BOTAO_CLOSE_JANELA_SELECAO_DATA_.update()
 
+def on_hover_close_notas_button(e):
+    if e.data == "true":
+        BOTAO_CLOSE_JANELA_NOTAS.bgcolor = ft.Colors.RED_200
+        BOTAO_CLOSE_JANELA_NOTAS.update()
+    else:
+        BOTAO_CLOSE_JANELA_NOTAS.bgcolor = ft.Colors.RED_500
+        BOTAO_CLOSE_JANELA_NOTAS.update()
+
+
 LOGO_AZUL = ft.Image(src="logo_azul.png", width=60, height=60)
 DATATABLE_GERAL = ft.DataTable(
     expand=True,
@@ -80,3 +89,9 @@ BOTAO_SELECAO_DATA_FIM_FILTRO = ft.FloatingActionButton(icon=ft.Icons.DATE_RANGE
 
 #BOTAO_FILTRAR_DATA_CONFIRMAR = ft.ElevatedButton(text="Filtrar", width=100, icon=ft.Icons.CHECK, height=30, bgcolor=ft.Colors.BLUE_700, on_click=None)
 BOTAO_FILTRAR_DATA_CONFIRMAR_ = ft.FloatingActionButton(icon=ft.Icons.CHECK, scale=0.5, bgcolor=ft.Colors.GREEN_500, on_click=None)
+
+TITULO_JANELA_NOTAS = ft.Text(value="Notas", size=16, weight=ft.FontWeight.W_500, color=ft.Colors.BLUE_700)
+BOTAO_CLOSE_JANELA_NOTAS = ft.Container(width=38, height=28, border_radius=ft.border_radius.only(bottom_left=5), alignment=ft.alignment.center_right, bgcolor=ft.Colors.RED_500, content=ft.Row(alignment=ft.MainAxisAlignment.CENTER, controls=[ft.Column(alignment=ft.MainAxisAlignment.CENTER,controls=[ft.Icon(ft.Icons.CLOSE, size=11, color=ft.Colors.WHITE)])]), on_click=None, on_hover=on_hover_close_notas_button)
+BOTAO_ENVIAR_EMAIL_NOTAS = ft.IconButton(icon=ft.Icons.EMAIL, icon_color=ft.Colors.BLUE_300)
+BOTAO_ADICIONAR_NOTA = ft.ElevatedButton(text="Adicionar Nota", width=120, height=30, on_click=None)
+TAB_NOTAS = ft.Tabs(selected_index=0, animation_duration=300,tabs=[]) 

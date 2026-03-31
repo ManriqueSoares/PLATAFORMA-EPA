@@ -481,6 +481,103 @@ class JANELA_SELECAO_DATA(ft.Container):
         
 
 class JANELA_NOTAS(ft.Container):
-    def __init__(self, page: ft.Page):
-        self.page = page
+    def __init__(self):
+        super().__init__()
+        self.width = 600
+        self.height = 400
+        self.border_radius = 10
+        self.bgcolor = ft.Colors.with_opacity(0.60, ft.Colors.GREY_900)
+        self.blur = 5
         
+        BOTAO_CLOSE_JANELA_NOTAS.on_click = lambda e: self.close_janela_notas(e)
+        BOTAO_ADICIONAR_NOTA.on_click = lambda e: self.adicionar_nova_nota(e)
+
+        self.content = ft.Column(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+                ft.Container(
+                    width=True,
+                    height=40,
+                    padding=0,
+                    content=ft.Row(
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                        vertical_alignment=ft.CrossAxisAlignment.START,
+                        controls=[
+                            ft.Container(padding=10, content=TITULO_JANELA_NOTAS),
+                            BOTAO_CLOSE_JANELA_NOTAS
+                        ]
+                    )
+                ),
+                ft.Container(
+                    expand=True,
+                    padding=10,
+                    content=TAB_NOTAS
+                ),
+                ft.Container(
+                    width=True,
+                    height=40,
+                    padding=ft.padding.only(bottom=5, right=5, left=5),
+                    content=ft.Row(
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=[
+                            BOTAO_ENVIAR_EMAIL_NOTAS,
+                            BOTAO_ADICIONAR_NOTA
+                        ]
+                    )
+                )
+            ]
+        )
+
+    def func_add_nota(self, e):
+        from app.config.config import configuracoes
+        from app.services.notas_service import adicionar_nota_csv
+        TAB_NOTAS.indicator_color = None
+        TAB_NOTAS.label_color = None
+        nota_texto = TAB_NOTAS.tabs[-1].content.content.controls[0].value
+        cp = TITULO_JANELA_NOTAS.value.replace("Notas CP:", "", 1).strip()
+        adicionar_nota_csv(
+            titulo=cp,
+            usuario=configuracoes.user,
+            conteudo=nota_texto
+        )
+        self.update()
+
+    def adicionar_nova_nota(self, e):
+        TAB_NOTAS.indicator_color = ft.Colors.GREEN_500
+        TAB_NOTAS.selected_index = len(TAB_NOTAS.tabs)
+        TAB_NOTAS.label_color = ft.Colors.GREEN_500
+        TAB_NOTAS.tabs.append(
+            ft.Tab(
+                text=f"Nova nota",
+                content=ft.Container(
+                    expand=True,
+                    border_radius=10,
+                    border=ft.border.all(1, ft.Colors.with_opacity(0.80, ft.Colors.BLUE_900)),
+                    content=ft.Stack(
+                        controls=[
+                            ft.TextField(expand=True, multiline=True, border_color="transparent", content_padding=ft.padding.all(10)),
+                            ft.Column(
+                                alignment=ft.MainAxisAlignment.END,
+                                horizontal_alignment=ft.CrossAxisAlignment.END,
+                                controls=[
+                                    ft.Row(
+                                        alignment=ft.MainAxisAlignment.END,
+                                        vertical_alignment=ft.CrossAxisAlignment.END,
+                                        controls=[
+                                            ft.FloatingActionButton(icon=ft.Icons.CHECK, scale=0.5, bgcolor=ft.Colors.GREEN_500, on_click=self.func_add_nota)
+                                        ]
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                )
+            )
+        )
+        self.update()
+
+    def close_janela_notas(self, e):
+        raiz.controls.pop()
+        raiz.update()
