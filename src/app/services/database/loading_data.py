@@ -37,7 +37,14 @@ def run_relatorio_ps_weg():
     file_path = os.path.join(pasta_relatorio, f"{today_weekday}.xlsx")
 
     df = pd.read_excel(file_path, sheet_name="1500")
-    df = df[df.iloc[:, 6].str.contains("PS ENG Estudo Parte Ati", na=False)]
+    df = df[df.iloc[:, 6].str.contains("PS ENG Estudo Parte Ati", na=False)].copy()
+    data_column = df.columns[10]
+    cp_column = df.columns[14]
+    df[data_column] = pd.to_datetime(df[data_column], errors="coerce")
+    df[cp_column] = pd.to_numeric(df[cp_column], errors="coerce").astype("Int64")
+    ## PRINT DA COLUNA DE DATAS DESTA PLANIHA
+    print("Datas encontradas no relatório da WEG:")
+    print(df.iloc[:, 10].head())
     return df
 
 
@@ -93,7 +100,7 @@ def _format_primeiro_envio_columns(df):
     df["DATA_FINAL"] = data_final
     df = df.sort_values(by="DATA_FINAL", na_position="last").reset_index(drop=True)
     #df["DATA_FINAL"] = df["DATA_FINAL"].dt.strftime("%d/%m/%Y").fillna("")
-
+    
     return df
 
 def run_primeiro_envio():
@@ -113,4 +120,3 @@ def run_primeiro_envio():
         if any(df_relatorio_weg.iloc[:, 14] == x) else "-"
     )
     configuracoes.planilha_geral = df
-    

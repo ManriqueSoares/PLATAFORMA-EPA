@@ -408,7 +408,6 @@ class HOME(ft.Container):
         )
     
 
-
 class JANELA_SELECAO_DATA(ft.Container):
     def __init__(self, page: ft.Page):
         super().__init__()
@@ -479,4 +478,9 @@ class JANELA_SELECAO_DATA(ft.Container):
         raiz.controls.pop()
         app_status.janela_selecao_data = False
         self.page.update()
+        
+
+class JANELA_NOTAS(ft.Container):
+    def __init__(self, page: ft.Page):
+        self.page = page
         

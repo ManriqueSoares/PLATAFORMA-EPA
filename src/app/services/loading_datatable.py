@@ -71,7 +71,7 @@ def _build_rows(df):
                     ft.DataCell(ft.Text(_normalize_text(row["RESP_EBPM"]))),
                     ft.DataCell(ft.Text(_normalize_text(row["APROVACAO"]), color=aprovacao_color)),
                     ft.DataCell(ft.Text(_normalize_text(row["RESP_APROVACAO"]))),
-                    ft.DataCell(ft.Text(_format_data_final(row["DATA_FINAL"]))),
+                    ft.DataCell(ft.Text(_format_data_final(row["DATA_PS"]))),
                     ft.DataCell(
                         ft.PopupMenuButton(
                             items=[
@@ -124,12 +124,12 @@ def _apply_filters_to_dataframe(
             )
         filtered_df = filtered_df[responsavel_mask]
 
-    data_final = pd.to_datetime(filtered_df["DATA_FINAL"], format="%d/%m/%Y", errors="coerce")
+    data_final = pd.to_datetime(filtered_df["DATA_PS"], format="%d/%m/%Y", errors="coerce")
 
     data_inicio = _parse_filter_date(data_inicio_value) if data_inicio_value else None
     if data_inicio is not None:
         filtered_df = filtered_df[data_final >= data_inicio]
-        data_final = pd.to_datetime(filtered_df["DATA_FINAL"], format="%d/%m/%Y", errors="coerce")
+        data_final = pd.to_datetime(filtered_df["DATA_PS"], format="%d/%m/%Y", errors="coerce")
 
     data_fim = _parse_filter_date(data_fim_value) if data_fim_value else None
     if data_fim is not None:
@@ -189,6 +189,8 @@ def run_datatable_primeiro_envio():
     run_primeiro_envio()
     if configuracoes.planilha_geral is not None:
         _set_datatable_rows(configuracoes.planilha_geral)
+        print("Primeiro envio carregado com sucesso.")
+        print(configuracoes.planilha_geral.head())
         update_filter_options()
     else:
         print("Primeiro envio ainda não carregado.")
