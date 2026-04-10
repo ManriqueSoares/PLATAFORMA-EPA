@@ -2,7 +2,10 @@ import flet as ft
 
 from app.layout.raiz import raiz
 from app.layout.pages.home_page import HOME, JANELA_NOTAS
-from app.services.loading_datatable import run_datatable_primeiro_envio
+from app.services.loading_datatable import (
+    run_datatable_primeiro_envio, 
+    run_datatable_atividades_em_aberto
+)
 def main(page: ft.Page):
 
     home = HOME(page)
@@ -22,6 +25,8 @@ def main(page: ft.Page):
         )
     )
     run_datatable_primeiro_envio()
+    run_datatable_atividades_em_aberto()
+
     page.update()
 
 if __name__ == "__main__":

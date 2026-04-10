@@ -6,6 +6,7 @@ import xlwings as xw
 import os
 
 from app.config.config import configuracoes
+from app.data.data import data_base
 import datetime
 
 
@@ -117,6 +118,56 @@ def run_primeiro_envio():
     df_relatorio_weg = run_relatorio_ps_weg()
     df['DATA_PS'] = df['CP'].apply(
         lambda x: df_relatorio_weg[df_relatorio_weg.iloc[:, 14] == x].iloc[0, 10] 
-        if any(df_relatorio_weg.iloc[:, 14] == x) else "-"
+        if any((df_relatorio_weg.iloc[:, 14] == x).fillna(False)) else "-"
     )
-    configuracoes.planilha_geral = df
+    data_base.planilha_geral = df
+
+
+
+def run_atividades_em_aberto():
+    from app.config.config import configuracoes
+    today_weekday = datetime.datetime.now().strftime("%A").upper()
+    file_path = os.path.join(configuracoes.caminho_banco_relatorio_ps_weg, f"{today_weekday}.xlsx")
+    df = pd.read_excel(file_path, sheet_name="1500")
+    df = df[df.iloc[:, 6].str.contains("PS ENG Estudo Parte Ati", na=False)].copy()
+    responsavel_col = df.columns[7]
+    df[responsavel_col] = df[responsavel_col].fillna("Manrique Soares F")
+    df[responsavel_col] = df[responsavel_col].replace("", "Manrique Soares F")
+    df[responsavel_col] = df[responsavel_col].where(df[responsavel_col].str.strip() != "", "Manrique Soares F")
+    status_col = df.columns[11]
+    df = df[df[status_col].str.strip().isin(["LIB NOLQ // ELAB"])].copy()
+    df = df[df[responsavel_col].str.contains("Manrique Soares F", case=False, na=False)].copy()
+    cp_col = df.columns[14]
+    df[cp_col] = pd.to_numeric(df[cp_col], errors="coerce").astype("Int64")
+    df = df.dropna(subset=[cp_col]).copy()
+
+    src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+    csv_path = os.path.join(src_dir, "storage", "data", "controle_new_status.csv")
+    df_controle = pd.read_csv(csv_path, sep=";")
+    df_controle.iloc[:, 0] = pd.to_numeric(df_controle.iloc[:, 0], errors="coerce").astype("Int64")
+    df_controle = df_controle.dropna(subset=[df_controle.columns[0]])
+
+    cps_controle = set(df_controle.iloc[:, 0])
+
+    data_col = df.columns[10]
+    df[data_col] = pd.to_datetime(df[data_col], errors="coerce").dt.strftime("%d/%m/%Y").fillna("")
+
+    df_pendentes = df[~df[cp_col].isin(cps_controle)].copy()
+
+    df_em_andamento = df[
+        df[cp_col].isin(
+            df_controle.loc[df_controle.iloc[:, 1].str.strip() == "EM ANDAMENTO", df_controle.columns[0]]
+        )
+    ].copy()
+
+    df_finalizado = df[
+        df[cp_col].isin(
+            df_controle.loc[df_controle.iloc[:, 1].str.strip() == "FINALIZADO", df_controle.columns[0]]
+        )
+    ].copy()
+    
+    print("Pendentes:", df_pendentes.shape[0])
+    print("Em andamento:", df_em_andamento.shape[0])
+    print("Finalizados:", df_finalizado.shape[0])
+
+    return df_pendentes, df_em_andamento, df_finalizado

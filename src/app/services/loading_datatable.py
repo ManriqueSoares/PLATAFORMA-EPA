@@ -4,7 +4,7 @@ import datetime
 from pathlib import Path
 
 from app.config.config import configuracoes
-from app.services.database.loading_data import run_primeiro_envio
+from app.data.data import data_base
 from app.layout.components.widgets import (
     DATATABLE_GERAL,
     ENTRADA_CLIENTE_FILTRO_GERAL,
@@ -247,11 +247,11 @@ def _build_dropdown_options(values):
 
 
 def update_filter_options(cp_value="", cliente_value="", responsavel_value="", data_inicio_value="", data_fim_value=""):
-    if configuracoes.planilha_geral is None:
+    if data_base.planilha_geral is None:
         return
 
     clientes_df = _apply_filters_to_dataframe(
-        configuracoes.planilha_geral,
+        data_base.planilha_geral,
         cp_value=cp_value,
         responsavel_value=responsavel_value,
         data_inicio_value=data_inicio_value,
@@ -269,11 +269,11 @@ def update_filter_options(cp_value="", cliente_value="", responsavel_value="", d
 
 
 def apply_filters_primeiro_envio(cp_value="", cliente_value="", responsavel_value="", data_inicio_value="", data_fim_value=""):
-    if configuracoes.planilha_geral is None:
+    if data_base.planilha_geral is None:
         return
 
     filtered_df = _apply_filters_to_dataframe(
-        configuracoes.planilha_geral,
+        data_base.planilha_geral,
         cp_value=cp_value,
         cliente_value=cliente_value,
         responsavel_value=responsavel_value,
@@ -290,11 +290,45 @@ def apply_filters_primeiro_envio(cp_value="", cliente_value="", responsavel_valu
     )
 
 def run_datatable_primeiro_envio():
+    from app.services.database.loading_data import run_primeiro_envio
     run_primeiro_envio()
-    if configuracoes.planilha_geral is not None:
-        _set_datatable_rows(configuracoes.planilha_geral)
+    if data_base.planilha_geral is not None:
+        _set_datatable_rows(data_base.planilha_geral)
         print("Primeiro envio carregado com sucesso.")
-        print(configuracoes.planilha_geral.head())
+        print(data_base.planilha_geral.head())
         update_filter_options()
     else:
         print("Primeiro envio ainda não carregado.")
+
+
+def run_datatable_atividades_em_aberto():
+    from app.layout.components.widgets import DATATABLE_ATIVIDADES_EM_ABERTO
+    from app.services.database.loading_data import run_atividades_em_aberto
+    df_pendentes, df_em_andamento, df_finalizado = run_atividades_em_aberto()
+    data_base.em_aberto_user = df_pendentes
+    data_base.em_andamento_user = df_em_andamento
+    data_base.concluido_user = df_finalizado
+
+    ## Carrega datatable de atividades em aberto
+    for i in data_base.em_aberto_user.index:
+        DATATABLE_ATIVIDADES_EM_ABERTO.rows.append(
+            ft.DataRow(
+                cells=[
+                    ft.DataCell(ft.Text(str(data_base.em_aberto_user.loc[i, data_base.em_aberto_user.columns[14]]))),
+                    ft.DataCell(ft.Text(str(data_base.em_aberto_user.loc[i, data_base.em_aberto_user.columns[16]]))),
+                    ft.DataCell(ft.Text(str(data_base.em_aberto_user.loc[i, data_base.em_aberto_user.columns[4]]))),
+                    ft.DataCell(ft.Text(str(data_base.em_aberto_user.loc[i, data_base.em_aberto_user.columns[2]]))),    
+                    ft.DataCell(ft.Text(str(data_base.em_aberto_user.loc[i, data_base.em_aberto_user.columns[10]]))),
+                    ft.DataCell(
+                        ft.PopupMenuButton(
+                            items=[
+                                ft.PopupMenuItem(text="Em Andamento", icon=ft.Icons.PLAY_ARROW),
+                                ft.PopupMenuItem(text="Direcionar Estudo", icon=ft.Icons.FORWARD),
+                                ft.PopupMenuItem(text="Sinalizar Problema", icon=ft.Icons.WARNING),
+                            ]
+                        )
+                    )
+                ]
+            )
+        )
+    raiz.update()
