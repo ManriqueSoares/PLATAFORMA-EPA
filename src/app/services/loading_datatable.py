@@ -301,7 +301,17 @@ def run_datatable_primeiro_envio():
         print("Primeiro envio ainda não carregado.")
 
 
+def funcs_datatable_atividades_em_aberto(e, cp, func):
+    match func:
+        case 1:
+            pass
+        case 2:
+            pass
+        case 3:
+            pass
+
 def run_datatable_atividades_em_aberto():
+
     from app.layout.components.widgets import DATATABLE_ATIVIDADES_EM_ABERTO
     from app.services.database.loading_data import run_atividades_em_aberto
     df_pendentes, df_em_andamento, df_finalizado = run_atividades_em_aberto()
@@ -322,9 +332,9 @@ def run_datatable_atividades_em_aberto():
                     ft.DataCell(
                         ft.PopupMenuButton(
                             items=[
-                                ft.PopupMenuItem(text="Em Andamento", icon=ft.Icons.PLAY_ARROW),
-                                ft.PopupMenuItem(text="Direcionar Estudo", icon=ft.Icons.FORWARD),
-                                ft.PopupMenuItem(text="Sinalizar Problema", icon=ft.Icons.WARNING),
+                                ft.PopupMenuItem(text="Em Andamento", icon=ft.Icons.PLAY_ARROW, on_click=lambda e, cp=data_base.em_aberto_user.loc[i, data_base.em_aberto_user.columns[14]], func=1: funcs_datatable_atividades_em_aberto(e, cp, func)),
+                                ft.PopupMenuItem(text="Direcionar Estudo", icon=ft.Icons.FORWARD, on_click=lambda e, cp=data_base.em_aberto_user.loc[i, data_base.em_aberto_user.columns[14]], func=2: funcs_datatable_atividades_em_aberto(e, cp, func)),
+                                ft.PopupMenuItem(text="Sinalizar Problema", icon=ft.Icons.WARNING, on_click=lambda e, cp=data_base.em_aberto_user.loc[i, data_base.em_aberto_user.columns[14]], func=3: funcs_datatable_atividades_em_aberto(e, cp, func))
                             ]
                         )
                     )

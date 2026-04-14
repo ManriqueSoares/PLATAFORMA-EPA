@@ -126,8 +126,14 @@ def run_primeiro_envio():
 
 def run_atividades_em_aberto():
     from app.config.config import configuracoes
+
+
+    """----------------------------------------------------- ENQUANTO ESTIVER EM TESTES MANTER ASSIM -----------------------------------------------------"""
     today_weekday = datetime.datetime.now().strftime("%A").upper()
-    file_path = os.path.join(configuracoes.caminho_banco_relatorio_ps_weg, f"{today_weekday}.xlsx")
+    #file_path = os.path.join(configuracoes.caminho_banco_relatorio_ps_weg, f"{today_weekday}.xlsx")
+    file_path = r"C:\Users\manriquef\Documents\AREA_DE_TRABALHO_ESTUDOS_PA\aplication\src\assets\Friday.xlsx"
+    """------------------------------------------------------------------------------------------------------------------------------------------"""
+
     df = pd.read_excel(file_path, sheet_name="1500")
     df = df[df.iloc[:, 6].str.contains("PS ENG Estudo Parte Ati", na=False)].copy()
     responsavel_col = df.columns[7]

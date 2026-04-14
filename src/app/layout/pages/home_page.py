@@ -544,6 +544,7 @@ class JANELA_NOTAS(ft.Container):
         )
         self.update()
 
+
     def adicionar_nova_nota(self, e):
         TAB_NOTAS.indicator_color = ft.Colors.GREEN_500
         TAB_NOTAS.selected_index = len(TAB_NOTAS.tabs)
@@ -579,5 +580,58 @@ class JANELA_NOTAS(ft.Container):
         self.update()
 
     def close_janela_notas(self, e):
+        raiz.controls.pop()
+        raiz.update()
+
+
+
+class JANELA_CONFIRMACAO(ft.Container):
+    def __init__(self, mensagem= "Mensagem de Teste", funcao_confirmacao=None):
+        super().__init__()
+        self.width = 400
+        self.height = 200
+        self.border_radius = 15
+        self.bgcolor = ft.Colors.with_opacity(0.60, ft.Colors.GREY_900)
+        self.blur = 5
+        self.content = ft.Column(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+                ft.Container(
+                    width=True,
+                    height=40,
+                    padding=ft.padding.only(right=5, top=3),
+                    content=ft.Row(
+                        alignment=ft.MainAxisAlignment.END,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=[
+                            ft.Icon(ft.Icons.WARNING, color=ft.Colors.BLUE_500),
+                        ]
+                    )
+                ),
+                ft.Container(
+                                expand=True,
+                                padding=ft.padding.only(left=10, right=10),
+                                content=ft.Column(
+                                    alignment=ft.MainAxisAlignment.CENTER,
+                                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                    controls=[
+                                        ft.Text(mensagem, text_align=ft.TextAlign.CENTER)
+                                    ]
+                                )
+                            ),
+                ft.Container(
+                    expand=True,
+                    padding=0,
+                    content=ft.Row(
+                        alignment=ft.MainAxisAlignment.END, 
+                        vertical_alignment=None
+                    )
+                )
+            ]
+        )
+    
+    def funcao_cancelamento(self, e):
+        from app.layout.raiz import raiz
         raiz.controls.pop()
         raiz.update()
